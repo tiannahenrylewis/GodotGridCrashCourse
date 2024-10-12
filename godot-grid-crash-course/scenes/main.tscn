@@ -11,6 +11,12 @@ script = ExtResource("1_i771e")
 building_scene = ExtResource("2_n61k6")
 
 [node name="Cursor" type="Sprite2D" parent="."]
-unique_name_in_owner = true
 texture = SubResource("PlaceholderTexture2D_chq5w")
 centered = false
+
+[node name="PlaceBuildingButton" type="Button" parent="."]
+offset_left = 14.0
+offset_top = 604.0
+offset_right = 131.0
+offset_bottom = 635.0
+text = "Place Building"
