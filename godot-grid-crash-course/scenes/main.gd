@@ -9,6 +9,20 @@ extends Node2D
 var hovered_grid_cell: Vector2 = Vector2(-1, -1)
 var null_cell_value = Vector2(-10,-10)
 
+var occupied_cells = {}
+
+#var my_set = {}
+#
+## Add an item to the set
+#my_set["item_key"] = true
+#
+## Check if an item exists in the set
+#if my_set.has("item_key"):
+	#print("Item exists in the set")
+#
+## Remove an item from the set
+#my_set.erase("item_key")
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -29,7 +43,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if (cursor.visible && event.is_action_pressed("left_click")):
+	if (cursor.visible && event.is_action_pressed("left_click") && !occupied_cells.has(get_mouse_grid_cell_position())):
 		# place building
 		place_building_at_mouse_position()
 		# hide cursor now that building has been placed
@@ -49,8 +63,10 @@ func get_mouse_grid_cell_position() -> Vector2:
 func place_building_at_mouse_position():
 	var building = building_scene.instantiate() as Node2D
 	add_child(building)
+	
 	var grid_position = get_mouse_grid_cell_position()
 	building.global_position = grid_position * 64
+	occupied_cells[grid_position] = true
 	
 	# reset the hover state and clear the tilemap to remove highlight cell after placing a building
 	hovered_grid_cell = null_cell_value
