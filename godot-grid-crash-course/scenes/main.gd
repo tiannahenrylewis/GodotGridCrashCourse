@@ -22,7 +22,7 @@ func _process(delta: float) -> void:
 	# set the cursor to the mouse position
 	cursor.global_position = grid_position * 64 
 	
-	if cursor.visible && (hovered_grid_cell != null_cell_value || hovered_grid_cell != grid_position):
+	if cursor.visible && (hovered_grid_cell == null_cell_value || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
 		update_highlight_tilemap_layer()
@@ -63,7 +63,7 @@ func update_highlight_tilemap_layer():
 	
 	if hovered_grid_cell == null_cell_value:
 		pass
-
+		
 	# iterate over all grid cells within a 3-cell radius 
 	for x in range(hovered_grid_cell.x - 3, hovered_grid_cell.x + 4):
 		for y in range(hovered_grid_cell.y - 3, hovered_grid_cell.y + 4):
