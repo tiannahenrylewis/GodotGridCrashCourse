@@ -1,4 +1,4 @@
-extends Node2D
+extends Node
 
 @export var building_scene: PackedScene
 
@@ -22,37 +22,38 @@ var occupied_cells = {}
 #
 ## Remove an item from the set
 #my_set.erase("item_key")
+#
+## Clear all items (like HashSet.Clear)
+#my_set.clear()
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	place_building_button.pressed.connect(on_button_pressed)
 	cursor.visible = false
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	var grid_position = get_mouse_grid_cell_position()
 	# set the cursor to the mouse position
 	cursor.global_position = grid_position * 64 
 	
-	if cursor.visible && (hovered_grid_cell == null_cell_value || hovered_grid_cell != grid_position):
+	if cursor.visible && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
 		update_highlight_tilemap_layer()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if (cursor.visible && event.is_action_pressed("left_click") && !occupied_cells.has(get_mouse_grid_cell_position())):
+	if (hasValue(hovered_grid_cell) && event.is_action_pressed("left_click") && !occupied_cells.has(hovered_grid_cell)):
 		# place building
-		place_building_at_mouse_position()
+		place_building_at_hovered_cell_position()
 		# hide cursor now that building has been placed
 		cursor.visible = false
 
 
 func get_mouse_grid_cell_position() -> Vector2:
 	# get mouse position -> returns Vector2(x,y)
-	var mouse_position = get_global_mouse_position()
+	var mouse_position = highlight_tile_map_layer.get_global_mouse_position()
 	# divide x and y by 64
 	var grid_position = mouse_position / 64
 	# round down the grid position
@@ -60,13 +61,16 @@ func get_mouse_grid_cell_position() -> Vector2:
 	return grid_position
 
 
-func place_building_at_mouse_position():
+func place_building_at_hovered_cell_position():
+	if !hasValue(hovered_grid_cell):
+		return
+	
 	var building = building_scene.instantiate() as Node2D
 	add_child(building)
 	
-	var grid_position = get_mouse_grid_cell_position()
-	building.global_position = grid_position * 64
-	occupied_cells[grid_position] = true
+	building.global_position = hovered_grid_cell * 64
+	# Add the grid position to the set of occupied cell
+	occupied_cells[hovered_grid_cell] = true
 	
 	# reset the hover state and clear the tilemap to remove highlight cell after placing a building
 	hovered_grid_cell = null_cell_value
@@ -77,8 +81,8 @@ func update_highlight_tilemap_layer():
 	# should by default clear the tilemap everytime it is called
 	highlight_tile_map_layer.clear()
 	
-	if hovered_grid_cell == null_cell_value:
-		pass
+	if !hasValue(hovered_grid_cell):
+		return
 		
 	# iterate over all grid cells within a 3-cell radius 
 	for x in range(hovered_grid_cell.x - 3, hovered_grid_cell.x + 4):
@@ -88,3 +92,10 @@ func update_highlight_tilemap_layer():
 
 func on_button_pressed():
 	cursor.visible = true
+
+
+func hasValue(cell: Vector2) -> bool:
+	if cell == null_cell_value:
+		return false
+	else:
+		return true

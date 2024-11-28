@@ -7,7 +7,7 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_chq5w"]
 size = Vector2(64, 64)
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node"]
 script = ExtResource("1_i771e")
 building_scene = ExtResource("2_n61k6")
 
