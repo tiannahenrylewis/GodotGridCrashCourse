@@ -22,41 +22,49 @@ var occupied_cells = {}
 ## Clear all items (like HashSet.Clear)
 #my_set.clear()
 
-func _ready() -> void:
-	pass # Replace with function body.
 
-
-func mark_tile_as_occupied(tile_position: Vector2):
-	occupied_cells[tile_position] = true
-
-
-func is_tile_position_valid(tile_position: Vector2) -> bool:
+func is_tile_position_valid(tile_position: Vector2i) -> bool:
+	var customData = base_terrain_tile_map_layer.get_cell_tile_data(tile_position)
+	
+	#If data is not available then return false
+	if customData == null:
+		return false
+	
+	#If the tile is not marked as `buildable` return false
+	if !customData.get_custom_data("buildable"):
+		return false
+	
 	return !occupied_cells.has(tile_position)
 
 
-func highlight_valid_tiles_in_radius(root_cell: Vector2, radius: int):
+func mark_tile_as_occupied(tile_position: Vector2i):
+	occupied_cells[tile_position] = true
+
+
+func highlight_valid_tiles_in_radius(root_cell: Vector2i, radius: int):
 	# should by default clear the tilemap everytime it is called
 	clear_highlighted_tiles()
 		
 	# iterate over all grid cells within a 3-cell radius 
 	for x in range(root_cell.x - radius, root_cell.x + (radius + 1)):
 		for y in range(root_cell.y - radius, root_cell.y + (radius + 1)):
-			if !is_tile_position_valid(Vector2(x, y)):
+			var tile_position = Vector2i(x, y)
+			if !is_tile_position_valid(tile_position):
 				continue
 				
 			# paint tiles in tilemap
-			highlight_tile_map_layer.set_cell(Vector2(int(x), int(y)), 0, Vector2i.ZERO)
+			highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO)
 
 
 func clear_highlighted_tiles() :
 	highlight_tile_map_layer.clear()
 
 
-func get_mouse_grid_cell_position() -> Vector2:
+func get_mouse_grid_cell_position() -> Vector2i:
 	# get mouse position -> returns Vector2(x,y)
 	var mouse_position = highlight_tile_map_layer.get_global_mouse_position()
 	# divide x and y by 64
 	var grid_position = mouse_position / 64
 	# round down the grid position
 	grid_position = grid_position.floor() 
-	return grid_position
+	return Vector2i(grid_position)

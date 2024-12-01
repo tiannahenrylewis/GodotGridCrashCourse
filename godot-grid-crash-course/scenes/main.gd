@@ -6,7 +6,7 @@ extends Node
 @onready var cursor: Sprite2D = $Cursor
 @onready var place_building_button: Button = $PlaceBuildingButton
 
-var hovered_grid_cell: Vector2 = Vector2(-1, -1)
+var hovered_grid_cell: Vector2i = Vector2i(-1, -1)
 var null_cell_value = Vector2(-10,-10)
 
 
