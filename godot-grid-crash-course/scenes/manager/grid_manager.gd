@@ -41,19 +41,14 @@ func mark_tile_as_occupied(tile_position: Vector2i):
 	occupied_cells[tile_position] = true
 
 
-func highlight_valid_tiles_in_radius(root_cell: Vector2i, radius: int):
-	# should by default clear the tilemap everytime it is called
+func highlight_buildable_tiles():
+	# TODO: Consider moving to a global constants file so can be referenced in one place
 	clear_highlighted_tiles()
-		
-	# iterate over all grid cells within a 3-cell radius 
-	for x in range(root_cell.x - radius, root_cell.x + (radius + 1)):
-		for y in range(root_cell.y - radius, root_cell.y + (radius + 1)):
-			var tile_position = Vector2i(x, y)
-			if !is_tile_position_valid(tile_position):
-				continue
-				
-			# paint tiles in tilemap
-			highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO)
+	
+	var building_components = get_tree().get_nodes_in_group("BuildingComponent") as Array[BuildingComponent]
+	
+	for building_component in building_components:
+		_highlight_valid_tiles_in_radius(building_component.get_grid_cell_position(), building_component.buildable_raidus)
 
 
 func clear_highlighted_tiles() :
@@ -68,3 +63,30 @@ func get_mouse_grid_cell_position() -> Vector2i:
 	# round down the grid position
 	grid_position = grid_position.floor() 
 	return Vector2i(grid_position)
+
+
+#PRIVATE METHODS
+
+func _highlight_valid_tiles_in_radius(root_cell: Vector2i, radius: int):
+	# iterate over all grid cells within a 3-cell radius 
+	for x in range(root_cell.x - radius, root_cell.x + (radius + 1)):
+		for y in range(root_cell.y - radius, root_cell.y + (radius + 1)):
+			var tile_position = Vector2i(x, y)
+			if !is_tile_position_valid(tile_position):
+				continue
+				
+			# paint tiles in tilemap
+			highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO)
+
+
+
+
+
+	#var building_components: Array[BuildingComponent] = []
+	#for node in get_tree().get_nodes_in_group("BuildingComponent"): #returns array of type Node
+		 ## so need to cast each result as `BuildingComponent`
+		#var component = node as BuildingComponent
+		#if component:
+			#building_components.append(component)
+	
+	# should by default clear the tilemap everytime it is called
