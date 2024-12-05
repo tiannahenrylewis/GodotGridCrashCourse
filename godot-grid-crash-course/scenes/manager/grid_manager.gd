@@ -22,6 +22,9 @@ var occupied_cells = {}
 ## Clear all items (like HashSet.Clear)
 #my_set.clear()
 
+func _ready() -> void:
+	var game_events = get_node("/root/GameEvents")
+	game_events.connect("building_placed_signal", _on_building_placed)
 
 func is_tile_position_valid(tile_position: Vector2i) -> bool:
 	var customData = base_terrain_tile_map_layer.get_cell_tile_data(tile_position)
@@ -79,6 +82,8 @@ func _highlight_valid_tiles_in_radius(root_cell: Vector2i, radius: int):
 			highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO)
 
 
+func _on_building_placed(building_component: BuildingComponent):
+	mark_tile_as_occupied(building_component.get_grid_cell_position())
 
 
 
