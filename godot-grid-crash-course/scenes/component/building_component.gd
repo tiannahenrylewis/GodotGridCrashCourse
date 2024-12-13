@@ -8,9 +8,12 @@ extends Node2D
 func _ready() -> void:
 	# TODO: Consider moving to a global constants file so can be referenced in one place
 	add_to_group("BuildingComponent")
-	
-	var game_events = get_node("/root/GameEvents")
-	game_events.emit_building_placed(self);
+	# Because ready method is happening before the global position is set and we 
+	# neet it to be set before emitting the signal, call_deferred() will wait until 
+	# other Godot processes are finished, so call this function last, at the end.
+	Callable(func(): 
+		GameEvents.emit_building_placed(self)
+	).call_deferred()
 
 
 func get_grid_cell_position() -> Vector2i:

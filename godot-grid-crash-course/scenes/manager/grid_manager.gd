@@ -5,8 +5,8 @@ extends Node
 @export var highlight_tile_map_layer: TileMapLayer 
 @export var base_terrain_tile_map_layer: TileMapLayer
 
-var occupied_cells = {}
-#OCCUPIED_CELLS CONVIENCEN METHODS
+var valid_buildable_tiles = {}
+#OCCUPIED_CELLS &  CONVIENCENE METHODS
 #var my_set = {}
 #
 ## Add an item to the set
@@ -26,6 +26,7 @@ func _ready() -> void:
 	var game_events = get_node("/root/GameEvents")
 	game_events.connect("building_placed_signal", _on_building_placed)
 
+# is a tile valid in principle
 func is_tile_position_valid(tile_position: Vector2i) -> bool:
 	var customData = base_terrain_tile_map_layer.get_cell_tile_data(tile_position)
 	
@@ -34,24 +35,18 @@ func is_tile_position_valid(tile_position: Vector2i) -> bool:
 		return false
 	
 	#If the tile is not marked as `buildable` return false
-	if !customData.get_custom_data("buildable"):
-		return false
-	
-	return !occupied_cells.has(tile_position)
+	return customData.get_custom_data("buildable")
 
 
-func mark_tile_as_occupied(tile_position: Vector2i):
-	occupied_cells[tile_position] = true
+# is tile in a state where a building can be placed on it, in range of another building
+# that extends the range of the buildable area
+func is_tile_position_buildable(tile_position: Vector2i) -> bool:
+	return valid_buildable_tiles.has(tile_position)
 
 
 func highlight_buildable_tiles():
-	# TODO: Consider moving to a global constants file so can be referenced in one place
-	clear_highlighted_tiles()
-	
-	var building_components = get_tree().get_nodes_in_group("BuildingComponent") as Array[BuildingComponent]
-	
-	for building_component in building_components:
-		_highlight_valid_tiles_in_radius(building_component.get_grid_cell_position(), building_component.buildable_raidus)
+	for tile_position in valid_buildable_tiles:
+		highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO);
 
 
 func clear_highlighted_tiles() :
@@ -70,8 +65,11 @@ func get_mouse_grid_cell_position() -> Vector2i:
 
 #PRIVATE METHODS
 
-func _highlight_valid_tiles_in_radius(root_cell: Vector2i, radius: int):
-	# iterate over all grid cells within a 3-cell radius 
+func _update_valid_buildable_tiles(building_component: BuildingComponent):
+	var root_cell = building_component.get_grid_cell_position()
+	var radius = building_component.buildable_raidus
+	
+	# iterate over all grid cells within a 3-cell radius of the building component
 	for x in range(root_cell.x - radius, root_cell.x + (radius + 1)):
 		for y in range(root_cell.y - radius, root_cell.y + (radius + 1)):
 			var tile_position = Vector2i(x, y)
@@ -79,11 +77,13 @@ func _highlight_valid_tiles_in_radius(root_cell: Vector2i, radius: int):
 				continue
 				
 			# paint tiles in tilemap
-			highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO)
+			valid_buildable_tiles[tile_position] = true
+			
+	valid_buildable_tiles.erase(building_component.get_grid_cell_position())
 
 
 func _on_building_placed(building_component: BuildingComponent):
-	mark_tile_as_occupied(building_component.get_grid_cell_position())
+	_update_valid_buildable_tiles(building_component)
 
 
 

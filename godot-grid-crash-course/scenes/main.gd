@@ -27,7 +27,7 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if (hasValue(hovered_grid_cell) && event.is_action_pressed("left_click") && gridManager.is_tile_position_valid(hovered_grid_cell)):
+	if (hasValue(hovered_grid_cell) && event.is_action_pressed("left_click") && gridManager.is_tile_position_buildable(hovered_grid_cell)):
 		# place building
 		place_building_at_hovered_cell_position()
 		# hide cursor now that building has been placed
@@ -43,8 +43,6 @@ func place_building_at_hovered_cell_position():
 	add_child(building)
 	
 	building.global_position = hovered_grid_cell * 64
-	# Add the grid position to the set of occupied cell
-	gridManager.mark_tile_as_occupied(hovered_grid_cell)
 	
 	# reset the hover state and clear the tilemap to remove highlight cell after placing a building
 	hovered_grid_cell = null_cell_value
