@@ -23,7 +23,7 @@ func _process(_delta: float) -> void:
 	if cursor.visible && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
-		gridManager.highlight_buildable_tiles()
+		gridManager.highlight_expanded_buildable_tiles(hovered_grid_cell, 3)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -51,6 +51,7 @@ func place_building_at_hovered_cell_position():
 
 func on_button_pressed():
 	cursor.visible = true
+	gridManager.highlight_buildable_tiles()
 
 
 func hasValue(cell: Vector2) -> bool:

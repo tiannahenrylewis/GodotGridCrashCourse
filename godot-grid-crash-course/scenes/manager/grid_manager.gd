@@ -49,6 +49,24 @@ func highlight_buildable_tiles():
 		highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO);
 
 
+func highlight_expanded_buildable_tiles(root_cell: Vector2i, radius: int):
+	clear_highlighted_tiles() # wiping the entire tileset
+	highlight_buildable_tiles() # re-highlighting the tiles that are currently buildable
+	
+	# highlight the green tiles (expanded buildable tiles)
+	# get all valid tiles in radius
+	var valid_tiles = _get_valid_tiles_in_radius(root_cell, radius)
+	# remove already existing buildable tiles
+	var expanded_tiles = []
+	var occupied_tiles = _get_occupied_tile_positions()
+	var atlas_coordinates = Vector2i(1,0) # coordinates of the green cell in the highlight tileset
+	for tile in valid_tiles:
+		if not tile in valid_buildable_tiles and not tile in occupied_tiles:
+			expanded_tiles.append(tile)
+	for tile_position in expanded_tiles:
+		highlight_tile_map_layer.set_cell(tile_position, 0, atlas_coordinates)
+
+
 func clear_highlighted_tiles() :
 	highlight_tile_map_layer.clear()
 
@@ -69,6 +87,19 @@ func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	var root_cell = building_component.get_grid_cell_position()
 	var radius = building_component.buildable_raidus
 	
+	var valid_tiles = _get_valid_tiles_in_radius(root_cell, radius)
+	# perform equivalent operation as using UnionWith in C#
+	for tile in valid_tiles:
+		valid_buildable_tiles[tile] = true
+	
+	# Iterate through and remove all 
+	var occupied_tiles = _get_occupied_tile_positions()
+	for existing_building_component in occupied_tiles:
+		valid_buildable_tiles.erase(existing_building_component)
+
+# Responsible for getting all tiles within a certain radius of a given cell that are valid
+func _get_valid_tiles_in_radius(root_cell: Vector2i, radius: int) -> Array:
+	var result = Array()
 	# iterate over all grid cells within a 3-cell radius of the building component
 	for x in range(root_cell.x - radius, root_cell.x + (radius + 1)):
 		for y in range(root_cell.y - radius, root_cell.y + (radius + 1)):
@@ -76,10 +107,17 @@ func _update_valid_buildable_tiles(building_component: BuildingComponent):
 			if !is_tile_position_valid(tile_position):
 				continue
 				
-			# paint tiles in tilemap
-			valid_buildable_tiles[tile_position] = true
-			
-	valid_buildable_tiles.erase(building_component.get_grid_cell_position())
+			# add tiles to result array
+			result.append(tile_position)
+	return result
+
+
+func _get_occupied_tile_positions() -> Array:
+	var occupied_tile_positions = Array()
+	var occupied_tiles = get_tree().get_nodes_in_group("BuildingComponent")
+	for tile in occupied_tiles:
+		occupied_tile_positions.append(tile.get_grid_cell_position())
+	return occupied_tile_positions
 
 
 func _on_building_placed(building_component: BuildingComponent):
