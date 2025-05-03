@@ -5,6 +5,7 @@ extends Node
 @onready var gridManager: Node = $GridManager
 @onready var cursor: Sprite2D = $Cursor
 @onready var place_building_button: Button = $PlaceBuildingButton
+@onready var y_sort_root: Node2D = $YSortRoot
 
 var hovered_grid_cell: Vector2i = Vector2i(-1, -1)
 var null_cell_value = Vector2(-10,-10)
@@ -40,7 +41,7 @@ func place_building_at_hovered_cell_position():
 		return
 	
 	var building = building_scene.instantiate() as Node2D
-	add_child(building)
+	y_sort_root.add_child(building)
 	
 	building.global_position = hovered_grid_cell * 64
 	
