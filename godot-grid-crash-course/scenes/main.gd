@@ -1,18 +1,22 @@
 extends Node
 
-@export var building_scene: PackedScene
+@export var tower_scene: PackedScene
+@export var village_scene: PackedScene
 
 @onready var gridManager: Node = $GridManager
 @onready var cursor: Sprite2D = $Cursor
-@onready var place_building_button: Button = $PlaceBuildingButton
+@onready var place_tower_button: Button = $PlaceTowerButton
+@onready var place_village_button: Button = $PlaceVillageButton
 @onready var y_sort_root: Node2D = $YSortRoot
 
 var hovered_grid_cell: Vector2i = Vector2i(-1, -1)
 var null_cell_value = Vector2(-10,-10)
+var to_place_building: PackedScene = null
 
 
 func _ready() -> void:
-	place_building_button.pressed.connect(on_button_pressed)
+	place_tower_button.pressed.connect(on_place_tower_button_pressed)
+	place_village_button.pressed.connect(on_place_village_button_pressed)
 	cursor.visible = false
 
 
@@ -40,7 +44,7 @@ func place_building_at_hovered_cell_position():
 	if !hasValue(hovered_grid_cell):
 		return
 	
-	var building = building_scene.instantiate() as Node2D
+	var building = to_place_building.instantiate() as Node2D
 	y_sort_root.add_child(building)
 	
 	building.global_position = hovered_grid_cell * 64
@@ -50,7 +54,14 @@ func place_building_at_hovered_cell_position():
 	gridManager.clear_highlighted_tiles()
 
 
-func on_button_pressed():
+func on_place_tower_button_pressed():
+	to_place_building = tower_scene
+	cursor.visible = true
+	gridManager.highlight_buildable_tiles()
+
+
+func on_place_village_button_pressed():
+	to_place_building = village_scene
 	cursor.visible = true
 	gridManager.highlight_buildable_tiles()
 

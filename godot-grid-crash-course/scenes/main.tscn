@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=4 uid="uid://ct8rqa1fvhq2v"]
+[gd_scene load_steps=9 format=4 uid="uid://ct8rqa1fvhq2v"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_i771e"]
-[ext_resource type="PackedScene" uid="uid://da3rlrm6nvkcl" path="res://scenes/building/building.tscn" id="2_n61k6"]
+[ext_resource type="PackedScene" uid="uid://da3rlrm6nvkcl" path="res://scenes/building/tower.tscn" id="2_n61k6"]
+[ext_resource type="PackedScene" uid="uid://6i3u74w8285u" path="res://scenes/building/village.tscn" id="3_1hm7a"]
 [ext_resource type="TileSet" uid="uid://b3e2j75vsc6o2" path="res://resources/tiles.tres" id="3_76jer"]
 [ext_resource type="TileSet" uid="uid://c3mn0unu36jgd" path="res://resources/hightlight_tileset.tres" id="3_juhvk"]
 [ext_resource type="PackedScene" uid="uid://bk633lu02vb05" path="res://scenes/manager/GridManager.tscn" id="3_rokrd"]
@@ -12,7 +13,8 @@ size = Vector2(64, 64)
 
 [node name="Main" type="Node"]
 script = ExtResource("1_i771e")
-building_scene = ExtResource("2_n61k6")
+tower_scene = ExtResource("2_n61k6")
+village_scene = ExtResource("3_1hm7a")
 
 [node name="YSortRoot" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -42,9 +44,16 @@ tile_set = ExtResource("3_juhvk")
 texture = SubResource("PlaceholderTexture2D_chq5w")
 centered = false
 
-[node name="PlaceBuildingButton" type="Button" parent="."]
+[node name="PlaceTowerButton" type="Button" parent="."]
 offset_left = 15.0
 offset_top = 671.0
 offset_right = 132.0
 offset_bottom = 702.0
-text = "Place Building"
+text = "Place Tower"
+
+[node name="PlaceVillageButton" type="Button" parent="."]
+offset_left = 192.0
+offset_top = 671.0
+offset_right = 309.0
+offset_bottom = 702.0
+text = "Place Village"
