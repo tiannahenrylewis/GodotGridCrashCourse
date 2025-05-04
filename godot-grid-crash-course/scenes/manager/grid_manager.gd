@@ -108,7 +108,7 @@ func _get_all_tile_map_layers(root_tile_map_layer: TileMapLayer) -> Array[TileMa
 
 func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	var root_cell = building_component.get_grid_cell_position()
-	var radius = building_component.buildable_raidus
+	var radius = building_component.building_resource.buildable_radius
 	
 	var valid_tiles = _get_valid_tiles_in_radius(root_cell, radius)
 	# perform equivalent operation as using UnionWith in C#

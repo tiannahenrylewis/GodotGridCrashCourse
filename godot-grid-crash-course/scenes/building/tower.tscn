@@ -7,7 +7,7 @@
 y_sort_enabled = true
 
 [node name="BuildingComponent" parent="." instance=ExtResource("1_6ro17")]
-buildable_raidus = 3
+building_resource_path = "res://resources/building/tower.tres"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(32, 32)

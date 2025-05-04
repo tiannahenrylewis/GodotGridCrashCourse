@@ -1,11 +1,13 @@
 class_name BuildingComponent
 extends Node2D
 
-# Is there a way to make this only read-only
-@export var buildable_raidus: int
-
+@export_file("*.tres") var building_resource_path: String
+var building_resource: BuildingResource
 
 func _ready() -> void:
+	if building_resource_path != null:
+		building_resource = load(building_resource_path)
+	
 	# TODO: Consider moving to a global constants file so can be referenced in one place
 	add_to_group("BuildingComponent")
 	# Because ready method is happening before the global position is set and we 

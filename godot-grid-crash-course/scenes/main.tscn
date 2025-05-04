@@ -1,9 +1,9 @@
 [gd_scene load_steps=9 format=4 uid="uid://ct8rqa1fvhq2v"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_i771e"]
-[ext_resource type="PackedScene" uid="uid://da3rlrm6nvkcl" path="res://scenes/building/tower.tscn" id="2_n61k6"]
-[ext_resource type="PackedScene" uid="uid://6i3u74w8285u" path="res://scenes/building/village.tscn" id="3_1hm7a"]
+[ext_resource type="Resource" uid="uid://b8mtuj5lqc1cf" path="res://resources/building/tower.tres" id="2_5j42h"]
 [ext_resource type="TileSet" uid="uid://b3e2j75vsc6o2" path="res://resources/tiles.tres" id="3_76jer"]
+[ext_resource type="Resource" uid="uid://cnjhhcndukwr1" path="res://resources/building/village.tres" id="3_cvyo4"]
 [ext_resource type="TileSet" uid="uid://c3mn0unu36jgd" path="res://resources/hightlight_tileset.tres" id="3_juhvk"]
 [ext_resource type="PackedScene" uid="uid://bk633lu02vb05" path="res://scenes/manager/GridManager.tscn" id="3_rokrd"]
 [ext_resource type="PackedScene" uid="uid://efm4e0q03e4l" path="res://scenes/building/Base.tscn" id="6_cdn8a"]
@@ -13,8 +13,8 @@ size = Vector2(64, 64)
 
 [node name="Main" type="Node"]
 script = ExtResource("1_i771e")
-tower_scene = ExtResource("2_n61k6")
-village_scene = ExtResource("3_1hm7a")
+tower_resource = ExtResource("2_5j42h")
+village_resource = ExtResource("3_cvyo4")
 
 [node name="YSortRoot" type="Node2D" parent="."]
 y_sort_enabled = true

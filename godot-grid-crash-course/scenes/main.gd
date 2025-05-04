@@ -1,7 +1,7 @@
 extends Node
 
-@export var tower_scene: PackedScene
-@export var village_scene: PackedScene
+@export var tower_resource: BuildingResource
+@export var village_resource: BuildingResource
 
 @onready var gridManager: Node = $GridManager
 @onready var cursor: Sprite2D = $Cursor
@@ -11,7 +11,7 @@ extends Node
 
 var hovered_grid_cell: Vector2i = Vector2i(-1, -1)
 var null_cell_value = Vector2(-10,-10)
-var to_place_building: PackedScene = null
+var to_place_building_resource: BuildingResource = null
 
 
 func _ready() -> void:
@@ -25,10 +25,10 @@ func _process(_delta: float) -> void:
 	# set the cursor to the mouse position
 	cursor.global_position = grid_position * 64 
 	
-	if cursor.visible && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
+	if to_place_building_resource != null && cursor.visible && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
-		gridManager.highlight_expanded_buildable_tiles(hovered_grid_cell, 3)
+		gridManager.highlight_expanded_buildable_tiles(hovered_grid_cell, to_place_building_resource.buildable_radius)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -44,7 +44,7 @@ func place_building_at_hovered_cell_position():
 	if !hasValue(hovered_grid_cell):
 		return
 	
-	var building = to_place_building.instantiate() as Node2D
+	var building = to_place_building_resource.building_scene.instantiate() as Node2D
 	y_sort_root.add_child(building)
 	
 	building.global_position = hovered_grid_cell * 64
@@ -55,13 +55,13 @@ func place_building_at_hovered_cell_position():
 
 
 func on_place_tower_button_pressed():
-	to_place_building = tower_scene
+	to_place_building_resource = tower_resource
 	cursor.visible = true
 	gridManager.highlight_buildable_tiles()
 
 
 func on_place_village_button_pressed():
-	to_place_building = village_scene
+	to_place_building_resource = village_resource
 	cursor.visible = true
 	gridManager.highlight_buildable_tiles()
 
