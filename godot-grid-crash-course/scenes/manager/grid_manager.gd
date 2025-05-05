@@ -5,8 +5,10 @@ extends Node
 @export var highlight_tile_map_layer: TileMapLayer 
 @export var base_terrain_tile_map_layer: TileMapLayer
 
-var _all_tile_map_layers: Array[TileMapLayer] = []
+const IS_BUILDABLE: String = "is_buildable"
+const IS_WOOD: String = "is_wood"
 
+var _all_tile_map_layers: Array[TileMapLayer] = []
 var valid_buildable_tiles = {}
 #OCCUPIED_CELLS &  CONVIENCENE METHODS
 #var my_set = {}
@@ -31,14 +33,14 @@ func _ready() -> void:
 
 # is a tile valid in principle
 # perform a depth-first search to check for validity across different tile layers
-func is_tile_position_valid(tile_position: Vector2i) -> bool:
+func tile_has_custom_data(tile_position: Vector2i, data_name: String) -> bool:
 	for layer in _all_tile_map_layers:
 		var customData = layer.get_cell_tile_data(tile_position)
 		#If data is not available then return false
 		if customData == null:
 			continue
 		#If the tile is not marked as `buildable` return false
-		return customData.get_custom_data("buildable")
+		return customData.get_custom_data(data_name)
 	return false
 
 
@@ -54,7 +56,6 @@ func highlight_buildable_tiles():
 
 
 func highlight_expanded_buildable_tiles(root_cell: Vector2i, radius: int):
-	clear_highlighted_tiles() # wiping the entire tileset
 	highlight_buildable_tiles() # re-highlighting the tiles that are currently buildable
 	
 	# highlight the green tiles (expanded buildable tiles)
@@ -68,6 +69,13 @@ func highlight_expanded_buildable_tiles(root_cell: Vector2i, radius: int):
 		if not tile in valid_buildable_tiles and not tile in occupied_tiles:
 			expanded_tiles.append(tile)
 	for tile_position in expanded_tiles:
+		highlight_tile_map_layer.set_cell(tile_position, 0, atlas_coordinates)
+
+
+func highlight_resource_tiles(root_cell: Vector2i, radius: int):
+	var resource_tiles = _get_valid_resource_tiles_in_radius(root_cell, radius)
+	var atlas_coordinates = Vector2i(1,0) # coordinates of the green cell in the highlight tileset
+	for tile_position in resource_tiles:
 		highlight_tile_map_layer.set_cell(tile_position, 0, atlas_coordinates)
 
 
@@ -110,7 +118,8 @@ func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	var root_cell = building_component.get_grid_cell_position()
 	var radius = building_component.building_resource.buildable_radius
 	
-	var valid_tiles = _get_valid_tiles_in_radius(root_cell, radius)
+	# Admittedly the use of the call is a tad confusing this was implemented in 24. Highlighting Resources Tile
+	var valid_tiles = _get_valid_tiles_in_radius(root_cell, building_component.building_resource.buildable_radius)
 	# perform equivalent operation as using UnionWith in C#
 	for tile in valid_tiles:
 		valid_buildable_tiles[tile] = true
@@ -120,20 +129,30 @@ func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	for existing_building_component in occupied_tiles:
 		valid_buildable_tiles.erase(existing_building_component)
 
-# Responsible for getting all tiles within a certain radius of a given cell that are valid
-func _get_valid_tiles_in_radius(root_cell: Vector2i, radius: int) -> Array:
+# a generic function that can be used with different filter functions to get the tiles desired
+func _get_tiles_in_radius(root_cell: Vector2i, radius: int, filterFn: Callable) -> Array:
 	var result = Array()
 	# iterate over all grid cells within a 3-cell radius of the building component
 	for x in range(root_cell.x - radius, root_cell.x + (radius + 1)):
 		for y in range(root_cell.y - radius, root_cell.y + (radius + 1)):
 			var tile_position = Vector2i(x, y)
-			if !is_tile_position_valid(tile_position):
+			if !filterFn.call(tile_position):
 				continue
 				
 			# add tiles to result array
 			result.append(tile_position)
 	return result
 
+# Responsible for getting all tiles within a certain radius of a given cell that are valid
+func _get_valid_tiles_in_radius(root_cell: Vector2i, radius: int) -> Array:
+	return _get_tiles_in_radius(root_cell, radius, func(tile_position: Vector2i) -> bool: 
+		return tile_has_custom_data(tile_position, IS_BUILDABLE)
+	)
+
+func _get_valid_resource_tiles_in_radius(root_cell: Vector2i, radius: int) -> Array:
+	return _get_tiles_in_radius(root_cell, radius, func(tile_position: Vector2i) -> bool: 
+		return tile_has_custom_data(tile_position, IS_WOOD)
+	)
 
 func _get_occupied_tile_positions() -> Array:
 	var occupied_tile_positions = Array()

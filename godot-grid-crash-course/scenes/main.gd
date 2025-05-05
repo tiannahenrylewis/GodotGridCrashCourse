@@ -28,7 +28,9 @@ func _process(_delta: float) -> void:
 	if to_place_building_resource != null && cursor.visible && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
+		gridManager.clear_highlighted_tiles() # wiping the entire tileset
 		gridManager.highlight_expanded_buildable_tiles(hovered_grid_cell, to_place_building_resource.buildable_radius)
+		gridManager.highlight_resource_tiles(hovered_grid_cell, to_place_building_resource.resource_radius)
 
 
 func _unhandled_input(event: InputEvent) -> void:
