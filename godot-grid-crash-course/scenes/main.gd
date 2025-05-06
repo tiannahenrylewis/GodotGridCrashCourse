@@ -18,6 +18,8 @@ func _ready() -> void:
 	place_tower_button.pressed.connect(on_place_tower_button_pressed)
 	place_village_button.pressed.connect(on_place_village_button_pressed)
 	cursor.visible = false
+	
+	GameEvents.connect("resource_tiles_updated", on_resource_tiles_updated)
 
 
 func _process(_delta: float) -> void:
@@ -66,6 +68,10 @@ func on_place_village_button_pressed():
 	to_place_building_resource = village_resource
 	cursor.visible = true
 	gridManager.highlight_buildable_tiles()
+
+
+func on_resource_tiles_updated(resource_count: int):
+	print("Resource count: ", resource_count)
 
 
 func hasValue(cell: Vector2) -> bool:

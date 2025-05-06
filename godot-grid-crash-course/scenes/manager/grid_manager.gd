@@ -10,6 +10,7 @@ const IS_WOOD: String = "is_wood"
 
 var _all_tile_map_layers: Array[TileMapLayer] = []
 var valid_buildable_tiles = {}
+var collected_resource_tiles = {}
 #OCCUPIED_CELLS &  CONVIENCENE METHODS
 #var my_set = {}
 #
@@ -116,7 +117,8 @@ func _get_all_tile_map_layers(root_tile_map_layer: TileMapLayer) -> Array[TileMa
 
 func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	var root_cell = building_component.get_grid_cell_position()
-	var radius = building_component.building_resource.buildable_radius
+	# REMOVED BELOW BECAUSE A WARNING THAT IT WASN'T BEING USED
+	# var radius = building_component.building_resource.buildable_radius
 	
 	# Admittedly the use of the call is a tad confusing this was implemented in 24. Highlighting Resources Tile
 	var valid_tiles = _get_valid_tiles_in_radius(root_cell, building_component.building_resource.buildable_radius)
@@ -128,6 +130,23 @@ func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	var occupied_tiles = _get_occupied_tile_positions()
 	for existing_building_component in occupied_tiles:
 		valid_buildable_tiles.erase(existing_building_component)
+
+
+func _update_collected_resource_tiles(building_component: BuildingComponent):
+	var root_cell = building_component.get_grid_cell_position()
+	var resource_tiles = _get_valid_resource_tiles_in_radius(root_cell, building_component.building_resource.resource_radius)
+	
+	var oldResourceTileCount = collected_resource_tiles.size()
+	
+	# perform equivalent operation as using UnionWith in C#
+	for tile in resource_tiles:
+		collected_resource_tiles[tile] = true
+	
+	# only emit signal if count changes
+	if (oldResourceTileCount != collected_resource_tiles.size()):
+		# emit signal to notify the game 
+		GameEvents.emit_resource_tiles_updated(collected_resource_tiles.size())
+
 
 # a generic function that can be used with different filter functions to get the tiles desired
 func _get_tiles_in_radius(root_cell: Vector2i, radius: int, filterFn: Callable) -> Array:
@@ -164,7 +183,7 @@ func _get_occupied_tile_positions() -> Array:
 
 func _on_building_placed(building_component: BuildingComponent):
 	_update_valid_buildable_tiles(building_component)
-
+	_update_collected_resource_tiles(building_component)
 
 
 	#var building_components: Array[BuildingComponent] = []
