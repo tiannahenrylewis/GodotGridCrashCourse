@@ -5,9 +5,8 @@ extends Node
 
 @onready var gridManager: Node = $GridManager
 @onready var cursor: Sprite2D = $Cursor
-@onready var place_tower_button: Button = $PlaceTowerButton
-@onready var place_village_button: Button = $PlaceVillageButton
 @onready var y_sort_root: Node2D = $YSortRoot
+@onready var game_ui = $GameUI
 
 var hovered_grid_cell: Vector2i = Vector2i(-1, -1)
 var null_cell_value = Vector2(-10,-10)
@@ -15,8 +14,8 @@ var to_place_building_resource: BuildingResource = null
 
 
 func _ready() -> void:
-	place_tower_button.pressed.connect(on_place_tower_button_pressed)
-	place_village_button.pressed.connect(on_place_village_button_pressed)
+	game_ui.place_tower_button.pressed.connect(on_place_tower_button_pressed)
+	game_ui.place_village_button.pressed.connect(on_place_village_button_pressed)
 	cursor.visible = false
 	
 	GameEvents.connect("resource_tiles_updated", on_resource_tiles_updated)
