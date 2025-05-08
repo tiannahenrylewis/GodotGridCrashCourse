@@ -1,7 +1,5 @@
 extends Node
 
-@export var tower_resource: BuildingResource
-@export var village_resource: BuildingResource
 
 @onready var gridManager: Node = $GridManager
 @onready var cursor: Sprite2D = $Cursor
@@ -14,10 +12,9 @@ var to_place_building_resource: BuildingResource = null
 
 
 func _ready() -> void:
-	game_ui.place_tower_button.pressed.connect(on_place_tower_button_pressed)
-	game_ui.place_village_button.pressed.connect(on_place_village_button_pressed)
 	cursor.visible = false
 	
+	GameEvents.connect("building_resource_selected_signal", on_building_resource_selected)
 	GameEvents.connect("resource_tiles_updated", on_resource_tiles_updated)
 
 
@@ -57,14 +54,8 @@ func place_building_at_hovered_cell_position():
 	gridManager.clear_highlighted_tiles()
 
 
-func on_place_tower_button_pressed():
-	to_place_building_resource = tower_resource
-	cursor.visible = true
-	gridManager.highlight_buildable_tiles()
-
-
-func on_place_village_button_pressed():
-	to_place_building_resource = village_resource
+func on_building_resource_selected(building_resource: BuildingResource):
+	to_place_building_resource = building_resource
 	cursor.visible = true
 	gridManager.highlight_buildable_tiles()
 

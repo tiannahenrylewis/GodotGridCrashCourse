@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://w8iq1hkhttro"]
+[gd_scene load_steps=5 format=3 uid="uid://w8iq1hkhttro"]
 
 [ext_resource type="Script" path="res://scenes/ui/game_ui.gd" id="1_doqu3"]
+[ext_resource type="Script" path="res://resources/building/building_resource.gd" id="2_gqgq5"]
+[ext_resource type="Resource" uid="uid://b8mtuj5lqc1cf" path="res://resources/building/tower.tres" id="2_rtfmf"]
+[ext_resource type="Resource" uid="uid://cnjhhcndukwr1" path="res://resources/building/village.tres" id="3_afib6"]
 
 [node name="GameUI" type="MarginContainer"]
 anchors_preset = 15
@@ -13,18 +16,9 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 script = ExtResource("1_doqu3")
+building_resources = Array[ExtResource("2_gqgq5")]([ExtResource("2_rtfmf"), ExtResource("3_afib6")])
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 16
-
-[node name="PlaceTowerButton" type="Button" parent="HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Place Tower"
-
-[node name="PlaceVillageButton" type="Button" parent="HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Place Village"

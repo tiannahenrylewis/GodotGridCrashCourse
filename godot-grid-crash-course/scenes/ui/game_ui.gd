@@ -1,15 +1,23 @@
 extends MarginContainer
 
-@onready var place_tower_button: Button = %PlaceTowerButton
-@onready var place_village_button: Button = %PlaceVillageButton
+@onready var hbox_container: HBoxContainer = $HBoxContainer
+
+@export var building_resources: Array[BuildingResource]
 
 func _ready():
-	place_tower_button.pressed.connect(on_place_tower_button_pressed)
-	place_village_button.pressed.connect(on_place_village_button_pressed)
+	create_building_buttons()
+	
 
-func on_place_tower_button_pressed():
-	GameEvents.emit_place_tower_button_pressed()
-
-
-func on_place_village_button_pressed():
-	emit_signal("place_village_button_pressed")
+func create_building_buttons():
+	for building_resource in building_resources:
+		# create an orphan node (not attached to scene tree)
+		var buildingButton = Button.new()
+		buildingButton.text = "Place {resource_name}".format({
+			"resource_name": building_resource.display_name
+		})
+		# unorphan the node by adding to the scene tree
+		hbox_container.add_child(buildingButton)
+		#
+		buildingButton.pressed.connect(func():
+			GameEvents.emit_building_resource_selected_signal(building_resource)
+		)
