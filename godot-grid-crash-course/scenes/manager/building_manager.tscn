@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bpvircu3tsi05"]
+
+[ext_resource type="Script" path="res://scenes/manager/building_manager.gd" id="1_mfhp5"]
+
+[node name="BuildingManager" type="Node"]
+script = ExtResource("1_mfhp5")
