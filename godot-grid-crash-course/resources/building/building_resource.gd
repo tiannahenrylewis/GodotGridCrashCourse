@@ -3,10 +3,10 @@ extends Resource
 
 @export var display_name: String
 @export var resource_cost: int
-
 @export var buildable_radius: int
 @export var resource_radius: int
 @export var building_scene: PackedScene
+@export var sprite_scene: PackedScene
 
 
 

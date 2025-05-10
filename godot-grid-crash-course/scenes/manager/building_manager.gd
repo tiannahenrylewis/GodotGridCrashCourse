@@ -1,9 +1,9 @@
 extends Node
 
-@export var cursor: Sprite2D
 @export var game_ui: Control
 @export var grid_manager: Node
 @export var y_sort_root: Node2D
+@export var building_ghost_scene: PackedScene
 
 var current_resource_count: int
 var starting_resource_count: int = 4
@@ -11,6 +11,7 @@ var currently_used_resource_count: int
 var to_place_building_resource: BuildingResource
 var hovered_grid_cell: Vector2i = Vector2i(-1, -1)
 var null_cell_value = Vector2(-10,-10)
+var building_ghost: Node2D
 
 func _ready():
 	GameEvents.connect("resource_tiles_updated", _on_resource_tiles_updated)
@@ -18,11 +19,15 @@ func _ready():
 
 
 func _process(_delta: float) -> void:
+	#if there is no valid building_ghost, do nothing
+	if !is_instance_valid(building_ghost):
+		return
+	
 	var grid_position = grid_manager.get_mouse_grid_cell_position()
 	# set the cursor to the mouse position
-	cursor.global_position = grid_position * 64 
+	building_ghost.global_position = grid_position * 64 
 	
-	if to_place_building_resource != null && cursor.visible && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
+	if to_place_building_resource != null && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
 		grid_manager.clear_highlighted_tiles() # wiping the entire tileset
@@ -39,8 +44,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	):
 		# place building
 		place_building_at_hovered_cell_position()
-		# hide cursor now that building has been placed
-		cursor.visible = false
 
 
 func place_building_at_hovered_cell_position():
@@ -57,6 +60,9 @@ func place_building_at_hovered_cell_position():
 	grid_manager.clear_highlighted_tiles()
 	
 	currently_used_resource_count += to_place_building_resource.resource_cost
+	building_ghost.queue_free()
+	# ensures the reference is null as soon as the node has been queued up for deletion
+	building_ghost = null 
 
 
 # number of resources available
@@ -72,8 +78,17 @@ func hasValue(cell: Vector2) -> bool:
 
 
 func _on_building_resource_selected(building_resource: BuildingResource):
+	if is_instance_valid(building_ghost):
+		building_ghost.queue_free()
+	
+	building_ghost = building_ghost_scene.instantiate()
+	y_sort_root.add_child(building_ghost) #unorphan building_ghost
+	
+	# add sprite as child to building ghost
+	var building_sprite = building_resource.sprite_scene.instantiate()
+	building_ghost.add_child(building_sprite)
+	
 	to_place_building_resource = building_resource
-	cursor.visible = true
 	grid_manager.highlight_buildable_tiles()
 
 
