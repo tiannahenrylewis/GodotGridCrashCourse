@@ -30,17 +30,30 @@ func _process(_delta: float) -> void:
 	if to_place_building_resource != null && (!hasValue(hovered_grid_cell) || hovered_grid_cell != grid_position):
 		 # reassign the hovered_grid_cell
 		hovered_grid_cell = grid_position
-		grid_manager.clear_highlighted_tiles() # wiping the entire tileset
+		_update_grid_display()
+
+
+func _update_grid_display():
+	if hovered_grid_cell == null:
+		return
+	
+	grid_manager.clear_highlighted_tiles() # wiping the entire tileset
+	grid_manager.highlight_buildable_tiles() # re-highlighting the tiles that are currently buildable
+
+	
+	if _is_building_placeable_at_tile(hovered_grid_cell):
 		grid_manager.highlight_expanded_buildable_tiles(hovered_grid_cell, to_place_building_resource.buildable_radius)
 		grid_manager.highlight_resource_tiles(hovered_grid_cell, to_place_building_resource.resource_radius)
+		building_ghost.set_valid()
+	else:
+		building_ghost.set_invalid()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if (hasValue(hovered_grid_cell) && 
 	to_place_building_resource != null &&
-	event.is_action_pressed("left_click") && 
-	grid_manager.is_tile_position_buildable(hovered_grid_cell) &&
-	get_available_resource_count() >= to_place_building_resource.resource_cost
+	event.is_action_pressed("left_click") &&
+	_is_building_placeable_at_tile(hovered_grid_cell)
 	):
 		# place building
 		place_building_at_hovered_cell_position()
@@ -89,7 +102,11 @@ func _on_building_resource_selected(building_resource: BuildingResource):
 	building_ghost.add_child(building_sprite)
 	
 	to_place_building_resource = building_resource
-	grid_manager.highlight_buildable_tiles()
+	_update_grid_display()
+
+
+func _is_building_placeable_at_tile(tile_position: Vector2i) -> bool:
+	return grid_manager.is_tile_position_buildable(tile_position) && get_available_resource_count() >= to_place_building_resource.resource_cost
 
 
 func _on_resource_tiles_updated(resource_count: int):

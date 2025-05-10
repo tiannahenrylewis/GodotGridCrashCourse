@@ -56,9 +56,7 @@ func highlight_buildable_tiles():
 		highlight_tile_map_layer.set_cell(tile_position, 0, Vector2i.ZERO);
 
 
-func highlight_expanded_buildable_tiles(root_cell: Vector2i, radius: int):
-	highlight_buildable_tiles() # re-highlighting the tiles that are currently buildable
-	
+func highlight_expanded_buildable_tiles(root_cell: Vector2i, radius: int):	
 	# highlight the green tiles (expanded buildable tiles)
 	# get all valid tiles in radius
 	var valid_tiles = _get_valid_tiles_in_radius(root_cell, radius)
