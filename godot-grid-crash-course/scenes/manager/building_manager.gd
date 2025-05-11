@@ -5,6 +5,9 @@ extends Node
 @export var y_sort_root: Node2D
 @export var building_ghost_scene: PackedScene
 
+const ACTION_LEFT_CLICK: StringName = "left_click"
+const ACTION_CANCEL: StringName = "cancel"
+
 var current_resource_count: int
 var starting_resource_count: int = 4
 var currently_used_resource_count: int
@@ -33,6 +36,18 @@ func _process(_delta: float) -> void:
 		_update_grid_display()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(ACTION_CANCEL):
+		clear_building_ghost()
+	elif (hasValue(hovered_grid_cell) && 
+	to_place_building_resource != null &&
+	event.is_action_pressed(ACTION_LEFT_CLICK) &&
+	_is_building_placeable_at_tile(hovered_grid_cell)
+	):
+		# place building
+		place_building_at_hovered_cell_position()
+
+
 func _update_grid_display():
 	if hovered_grid_cell == null:
 		return
@@ -49,16 +64,6 @@ func _update_grid_display():
 		building_ghost.set_invalid()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if (hasValue(hovered_grid_cell) && 
-	to_place_building_resource != null &&
-	event.is_action_pressed("left_click") &&
-	_is_building_placeable_at_tile(hovered_grid_cell)
-	):
-		# place building
-		place_building_at_hovered_cell_position()
-
-
 func place_building_at_hovered_cell_position():
 	if !hasValue(hovered_grid_cell):
 		return
@@ -67,13 +72,18 @@ func place_building_at_hovered_cell_position():
 	y_sort_root.add_child(building)
 	
 	building.global_position = hovered_grid_cell * 64
-	
+	currently_used_resource_count += to_place_building_resource.resource_cost
+	clear_building_ghost()
+
+
+func clear_building_ghost():
 	# reset the hover state and clear the tilemap to remove highlight cell after placing a building
 	hovered_grid_cell = null_cell_value
 	grid_manager.clear_highlighted_tiles()
 	
-	currently_used_resource_count += to_place_building_resource.resource_cost
-	building_ghost.queue_free()
+	if is_instance_valid(building_ghost):
+		building_ghost.queue_free()
+	
 	# ensures the reference is null as soon as the node has been queued up for deletion
 	building_ghost = null 
 
