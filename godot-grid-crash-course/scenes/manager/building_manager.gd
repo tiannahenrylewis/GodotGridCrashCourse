@@ -84,7 +84,16 @@ func place_building_at_hovered_cell_position():
 
 
 func destroy_building_at_hovered_cell_position():
-	pass
+	# find building at mouse position
+	var building_components = get_tree().get_nodes_in_group("BuildingComponent")
+	
+	for building_component in building_components:
+		if building_component.get_grid_cell_position() == hovered_grid_cell:
+			#refund resources
+			currently_used_resource_count -= building_component.building_resource.resource_cost
+			#destroy building
+			building_component.destroy()
+			return
 
 
 func clear_building_ghost():

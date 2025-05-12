@@ -24,3 +24,8 @@ func get_grid_cell_position() -> Vector2i:
 	# round down the grid position
 	grid_position = grid_position.floor() 
 	return Vector2i(grid_position)
+
+
+func destroy():
+	GameEvents.emit_building_destroyed(self)
+	owner.queue_free()

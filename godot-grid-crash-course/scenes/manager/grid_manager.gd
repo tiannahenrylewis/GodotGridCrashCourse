@@ -11,6 +11,7 @@ const IS_WOOD: String = "is_wood"
 var all_tile_map_layers: Array[TileMapLayer] = []
 var valid_buildable_tiles = {}
 var collected_resource_tiles = {}
+var occupied_tiles = {}
 #OCCUPIED_CELLS &  CONVIENCENE METHODS
 #var my_set = {}
 #
@@ -30,6 +31,7 @@ var collected_resource_tiles = {}
 func _ready() -> void:
 	var game_events = get_node("/root/GameEvents")
 	game_events.connect("building_placed_signal", _on_building_placed)
+	game_events.connect("building_destroyed_signal", _on_building_destroyed)
 	all_tile_map_layers = _get_all_tile_map_layers(base_terrain_tile_map_layer)
 
 # is a tile valid in principle
@@ -62,7 +64,6 @@ func highlight_expanded_buildable_tiles(root_cell: Vector2i, radius: int):
 	var valid_tiles = _get_valid_tiles_in_radius(root_cell, radius)
 	# remove already existing buildable tiles
 	var expanded_tiles = []
-	var occupied_tiles = _get_occupied_tile_positions()
 	var atlas_coordinates = Vector2i(1,0) # coordinates of the green cell in the highlight tileset
 	for tile in valid_tiles:
 		if not tile in valid_buildable_tiles and not tile in occupied_tiles:
@@ -114,18 +115,15 @@ func _get_all_tile_map_layers(root_tile_map_layer: TileMapLayer) -> Array[TileMa
 	return result
 
 func _update_valid_buildable_tiles(building_component: BuildingComponent):
+	occupied_tiles[building_component.get_grid_cell_position()] = true
 	var root_cell = building_component.get_grid_cell_position()
-	# REMOVED BELOW BECAUSE A WARNING THAT IT WASN'T BEING USED
-	# var radius = building_component.building_resource.buildable_radius
-	
 	# Admittedly the use of the call is a tad confusing this was implemented in 24. Highlighting Resources Tile
 	var valid_tiles = _get_valid_tiles_in_radius(root_cell, building_component.building_resource.buildable_radius)
 	# perform equivalent operation as using UnionWith in C#
 	for tile in valid_tiles:
 		valid_buildable_tiles[tile] = true
 	
-	# Iterate through and remove all 
-	var occupied_tiles = _get_occupied_tile_positions()
+	# Iterate through and remove all existing building_components
 	for existing_building_component in occupied_tiles:
 		valid_buildable_tiles.erase(existing_building_component)
 
@@ -144,6 +142,22 @@ func _update_collected_resource_tiles(building_component: BuildingComponent):
 	if (oldResourceTileCount != collected_resource_tiles.size()):
 		# emit signal to notify the game 
 		GameEvents.emit_resource_tiles_updated(collected_resource_tiles.size())
+
+
+func _recalculate_grid(building_component_to_exclude: BuildingComponent):
+	occupied_tiles.clear()
+	valid_buildable_tiles.clear()
+	collected_resource_tiles.clear()
+	
+	var building_components = get_tree().get_nodes_in_group("BuildingComponent").filter(func(component):
+		return component != building_component_to_exclude
+	)
+	
+	for building_component in building_components:
+		_update_valid_buildable_tiles(building_component)
+		-_update_collected_resource_tiles(building_component)
+	
+	GameEvents.emit_resource_tiles_updated(collected_resource_tiles.size())
 
 
 # a generic function that can be used with different filter functions to get the tiles desired
@@ -171,17 +185,15 @@ func _get_valid_resource_tiles_in_radius(root_cell: Vector2i, radius: int) -> Ar
 		return tile_has_custom_data(tile_position, IS_WOOD)
 	)
 
-func _get_occupied_tile_positions() -> Array:
-	var occupied_tile_positions = Array()
-	var occupied_tiles = get_tree().get_nodes_in_group("BuildingComponent")
-	for tile in occupied_tiles:
-		occupied_tile_positions.append(tile.get_grid_cell_position())
-	return occupied_tile_positions
-
 
 func _on_building_placed(building_component: BuildingComponent):
 	_update_valid_buildable_tiles(building_component)
 	_update_collected_resource_tiles(building_component)
+
+
+func _on_building_destroyed(building_component: BuildingComponent):
+	# recalculte the entire grid - not the most performant but simplest
+	_recalculate_grid(building_component)
 
 
 	#var building_components: Array[BuildingComponent] = []
