@@ -86,11 +86,15 @@ func clear_highlighted_tiles() :
 func get_mouse_grid_cell_position() -> Vector2i:
 	# get mouse position -> returns Vector2(x,y)
 	var mouse_position = highlight_tile_map_layer.get_global_mouse_position()
+	return convert_world_position_to_tile_position(mouse_position)
+
+
+func convert_world_position_to_tile_position(world_position: Vector2) -> Vector2i:
 	# divide x and y by 64
-	var grid_position = mouse_position / 64
+	var tile_position = world_position / 64
 	# round down the grid position
-	grid_position = grid_position.floor() 
-	return Vector2i(grid_position)
+	tile_position = tile_position.floor() 
+	return Vector2i(tile_position)
 
 
 #PRIVATE METHODS
@@ -126,6 +130,8 @@ func _update_valid_buildable_tiles(building_component: BuildingComponent):
 	# Iterate through and remove all existing building_components
 	for existing_building_component in occupied_tiles:
 		valid_buildable_tiles.erase(existing_building_component)
+	
+	GameEvents.emit_grid_state_updated()
 
 
 func _update_collected_resource_tiles(building_component: BuildingComponent):
@@ -142,6 +148,8 @@ func _update_collected_resource_tiles(building_component: BuildingComponent):
 	if (oldResourceTileCount != collected_resource_tiles.size()):
 		# emit signal to notify the game 
 		GameEvents.emit_resource_tiles_updated(collected_resource_tiles.size())
+	
+	GameEvents.emit_grid_state_updated()
 
 
 func _recalculate_grid(building_component_to_exclude: BuildingComponent):
@@ -155,9 +163,10 @@ func _recalculate_grid(building_component_to_exclude: BuildingComponent):
 	
 	for building_component in building_components:
 		_update_valid_buildable_tiles(building_component)
-		-_update_collected_resource_tiles(building_component)
+		_update_collected_resource_tiles(building_component)
 	
 	GameEvents.emit_resource_tiles_updated(collected_resource_tiles.size())
+	GameEvents.emit_grid_state_updated()
 
 
 # a generic function that can be used with different filter functions to get the tiles desired
