@@ -1,10 +1,11 @@
-[gd_resource type="TileSet" load_steps=11 format=3 uid="uid://b3e2j75vsc6o2"]
+[gd_resource type="TileSet" load_steps=13 format=3 uid="uid://b3e2j75vsc6o2"]
 
 [ext_resource type="Texture2D" uid="uid://dqg7xrmeqrdha" path="res://assets/tiles/tilemap_flat.png" id="1_0ls5q"]
 [ext_resource type="Texture2D" uid="uid://565e73v751fr" path="res://assets/tiles/tree.png" id="2_w18fo"]
 [ext_resource type="Texture2D" uid="uid://g6csfarfq1ui" path="res://assets/tiles/tilemap_elevation.png" id="3_tur5q"]
 [ext_resource type="Texture2D" uid="uid://dcn80atcekyhc" path="res://assets/tiles/water.png" id="4_2x8gi"]
 [ext_resource type="Texture2D" uid="uid://tco73sq5gdrb" path="res://assets/tiles/foam.png" id="5_tk1mu"]
+[ext_resource type="Texture2D" uid="uid://cmdf4wth043gq" path="res://assets/tiles/shadows.png" id="6_krtcv"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_v87js"]
 texture = ExtResource("1_0ls5q")
@@ -313,6 +314,29 @@ texture_region_size = Vector2i(192, 192)
 0:0/0 = 0
 0:0/0/z_index = -1
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_dkywj"]
+texture = ExtResource("6_krtcv")
+texture_region_size = Vector2i(64, 64)
+1:1/0 = 0
+1:1/0/terrain_set = 0
+1:1/0/terrain = 3
+1:1/0/terrains_peering_bit/right_side = 3
+1:1/0/terrains_peering_bit/bottom_side = 3
+1:1/0/terrains_peering_bit/left_side = 3
+1:1/0/terrains_peering_bit/top_side = 3
+0:1/0 = 0
+0:1/0/terrain_set = 0
+0:1/0/terrains_peering_bit/right_side = 3
+2:1/0 = 0
+2:1/0/terrain_set = 0
+2:1/0/terrains_peering_bit/left_side = 3
+1:2/0 = 0
+1:2/0/terrain_set = 0
+1:2/0/terrains_peering_bit/top_side = 3
+1:0/0 = 0
+1:0/0/terrain_set = 0
+1:0/0/terrains_peering_bit/bottom_side = 3
+
 [resource]
 tile_size = Vector2i(64, 64)
 terrain_set_0/mode = 2
@@ -322,6 +346,8 @@ terrain_set_0/terrain_1/name = "Grass"
 terrain_set_0/terrain_1/color = Color(0.928859, 0.000130338, 0.759886, 1)
 terrain_set_0/terrain_2/name = "Elevation"
 terrain_set_0/terrain_2/color = Color(0.0720175, 0.441702, 9.62615e-08, 1)
+terrain_set_0/terrain_3/name = "shadow"
+terrain_set_0/terrain_3/color = Color(0.376596, 0.268972, 0.648645, 1)
 custom_data_layer_0/name = "is_buildable"
 custom_data_layer_0/type = 1
 custom_data_layer_1/name = "is_wood"
@@ -331,3 +357,4 @@ sources/1 = SubResource("TileSetAtlasSource_56kvs")
 sources/2 = SubResource("TileSetAtlasSource_a174h")
 sources/3 = SubResource("TileSetAtlasSource_li0d7")
 sources/4 = SubResource("TileSetAtlasSource_ti12x")
+sources/5 = SubResource("TileSetAtlasSource_dkywj")
